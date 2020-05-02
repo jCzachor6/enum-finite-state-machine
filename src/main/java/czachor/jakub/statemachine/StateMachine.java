@@ -8,7 +8,7 @@ public class StateMachine<T> {
     private Map<T, List<Transition>> mappedTransitions;
 
 
-    protected StateMachine(T startingState) {
+    public StateMachine(T startingState) {
         this.mappedTransitions = new HashMap<>();
         this.currentState = startingState;
     }
