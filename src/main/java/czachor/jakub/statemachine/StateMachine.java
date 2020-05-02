@@ -13,6 +13,10 @@ public class StateMachine<T> {
         this.currentState = startingState;
     }
 
+    public StateMachine<T> setTransition(T from, T to, Condition condition, Event event) {
+        return setTransition(from, new Transition(to, condition, event));
+    }
+
     public StateMachine<T> setTransition(T from, Transition transition) {
         if (mappedTransitions.containsKey(from)) {
             mappedTransitions.get(from).add(transition);
@@ -26,23 +30,17 @@ public class StateMachine<T> {
 
     public List<T> availableTransitions() {
         List<Transition> savedForCurrentState = mappedTransitions.get(this.currentState);
-        return savedForCurrentState.stream().filter(t -> t.condition.condition()).map(t -> t.to).collect(Collectors.toList());
+        if (savedForCurrentState != null) {
+            return savedForCurrentState.stream().filter(t -> t.condition.condition()).map(t -> t.to).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     public StateMachine<T> tick() {
         return firstAvailableTransition().map(this::tick).orElse(this);
     }
 
-    public StateMachine<T> setTransition(T from, T to, Condition condition, Event event) {
-        Transition transition = new Transition(to, condition, event);
-        return setTransition(from, transition);
-    }
-
-    public T state() {
-        return currentState;
-    }
-
-    private StateMachine<T> tick(T to) {
+    public StateMachine<T> tick(T to) {
         if (mappedTransitions.containsKey(currentState)) {
             mappedTransitions.get(currentState).stream().filter(t -> t.to.equals(to)).findFirst().ifPresent(t -> t.event.transition());
         }
@@ -50,12 +48,20 @@ public class StateMachine<T> {
         return this;
     }
 
-    private Optional<T> firstAvailableTransition() {
+    public T state() {
+        return currentState;
+    }
+
+    public Transition transition(T to, Condition condition, Event event) {
+        return new Transition(to, condition, event);
+    }
+
+    public Optional<T> firstAvailableTransition() {
         return availableTransitions().stream().findFirst();
     }
 
     public class Transition {
-        public Transition(T to, Condition condition, Event event) {
+        private Transition(T to, Condition condition, Event event) {
             this.to = to;
             this.condition = condition;
             this.event = event;
