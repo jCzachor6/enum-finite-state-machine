@@ -30,7 +30,7 @@ public class StateMachineTest {
     @Test
     public void setTransitionShouldFindOnlySelfTransition() {
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.ONE, () -> true, () -> {});
+        testMachine.setTransition(TestStates.ONE, TestStates.ONE, Condition.always, Event.none);
         List<TestStates> list = testMachine.availableTransitions();
         assertEquals(1, list.size());
         assertEquals(TestStates.ONE, list.get(0));
@@ -39,7 +39,7 @@ public class StateMachineTest {
     @Test
     public void setTransitionShouldFindOnlySelfTransition2() {
         StateMachine<TestStates> testMachine = new StateMachine<TestStates>(TestStates.ONE);
-        StateMachine.Transition t = testMachine.transition(TestStates.ONE, () -> true, () -> {});
+        StateMachine.Transition t = testMachine.transition(TestStates.ONE, Condition.always, Event.none);
         testMachine.setTransition(TestStates.ONE, t);
         List<TestStates> list = testMachine.availableTransitions();
         assertEquals(1, list.size());
@@ -56,7 +56,7 @@ public class StateMachineTest {
     @Test
     public void availableTransitionsShouldFindNothingFalseCondition() {
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.ONE, () -> false, () -> {});
+        testMachine.setTransition(TestStates.ONE, TestStates.ONE, Condition.never, Event.none);
         List<TestStates> list = testMachine.availableTransitions();
         assertEquals(0, list.size());
     }
@@ -64,8 +64,8 @@ public class StateMachineTest {
     @Test
     public void availableTransitionsShouldFindTwo() {
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.ONE, () -> true, () -> {});
-        testMachine.setTransition(TestStates.ONE, TestStates.TWO, () -> true, () -> {});
+        testMachine.setTransition(TestStates.ONE, TestStates.ONE, Condition.always, Event.none);
+        testMachine.setTransition(TestStates.ONE, TestStates.TWO, Condition.always, Event.none);
         List<TestStates> list = testMachine.availableTransitions();
         assertEquals(2, list.size());
     }
@@ -73,7 +73,7 @@ public class StateMachineTest {
     @Test
     public void firstAvailableShouldReturnEmptyOptional() {
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.ONE, () -> false, () -> {});
+        testMachine.setTransition(TestStates.ONE, TestStates.ONE, Condition.never, Event.none);
         Optional<TestStates> ts = testMachine.firstAvailableTransition();
         assertFalse(ts.isPresent());
     }
@@ -81,7 +81,7 @@ public class StateMachineTest {
     @Test
     public void firstAvailableShouldReturnNonEmptyOptional() {
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.TWO, () -> true, () -> {});
+        testMachine.setTransition(TestStates.ONE, TestStates.TWO, Condition.always, Event.none);
         Optional<TestStates> ts = testMachine.firstAvailableTransition();
         assertTrue(ts.isPresent());
         assertEquals(TestStates.TWO, ts.get());
@@ -91,7 +91,7 @@ public class StateMachineTest {
     public void shouldSelfTickWork() {
         AtomicInteger i = new AtomicInteger();
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.TWO, () -> true, i::getAndIncrement);
+        testMachine.setTransition(TestStates.ONE, TestStates.TWO, Condition.always, i::getAndIncrement);
         testMachine.tick();
         assertEquals(1, i.get());
     }
@@ -100,7 +100,7 @@ public class StateMachineTest {
     public void shouldSelfTickNotWork() {
         AtomicInteger i = new AtomicInteger();
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.TWO, () -> false, i::getAndIncrement);
+        testMachine.setTransition(TestStates.ONE, TestStates.TWO, Condition.never, i::getAndIncrement);
         testMachine.tick();
         assertEquals(0, i.get());
     }
@@ -108,7 +108,7 @@ public class StateMachineTest {
     @Test
     public void shouldChangeState() {
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        testMachine.setTransition(TestStates.ONE, TestStates.TWO, () -> true, ()->{});
+        testMachine.setTransition(TestStates.ONE, TestStates.TWO, Condition.always, ()->{});
         testMachine.tick();
         assertEquals(TestStates.TWO, testMachine.state());
     }
@@ -123,7 +123,7 @@ public class StateMachineTest {
     @Test
     public void shouldCreateTransition() {
         StateMachine<TestStates> testMachine = new StateMachine<>(TestStates.ONE);
-        assertNotNull(testMachine.transition(TestStates.ONE, () -> true, () -> {}));
+        assertNotNull(testMachine.transition(TestStates.ONE, Condition.always, Event.none));
     }
 
     private enum TestStates {
