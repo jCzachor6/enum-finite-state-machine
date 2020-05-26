@@ -6,7 +6,12 @@
 
     <groupId>enum-finite-state-machine</groupId>
     <artifactId>enum-finite-state-machine</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
+
+    <properties>
+        <github.global.server>github</github.global.server>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -28,4 +33,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>enum-finite-state-machine</name>
+            <url>https://maven.pkg.github.com/jczachor6/enum-finite-state-machine</url>
+        </repository>
+    </distributionManagement>
 </project>
