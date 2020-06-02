@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 public class StateMachine<T> {
     private T currentState;
-    private Map<T, List<Transition>> mappedTransitions;
+    private final Map<T, List<Transition>> mappedTransitions;
 
 
     public StateMachine(T startingState) {
@@ -15,6 +15,32 @@ public class StateMachine<T> {
 
     public StateMachine<T> setTransition(T from, T to, Condition condition, Event event) {
         return setTransition(from, new Transition(to, condition, event));
+    }
+
+    public StateMachine<T> setTransition(List<T> fromStates, T to, Condition condition, Event event) throws Exception {
+        if (fromStates == null || fromStates.size() == 0) {
+            throw new Exception("Parameter from can not be empty. ");
+        }
+        fromStates.forEach(state -> setTransition(state, new Transition(to, condition, event)));
+        return this;
+    }
+
+    public StateMachine<T> setTransition(T from, List<T> toStates, Condition condition, Event event) throws Exception {
+        if (toStates == null || toStates.size() == 0) {
+            throw new Exception("Parameter from can not be empty. ");
+        }
+        toStates.forEach(state -> setTransition(from, new Transition(state, condition, event)));
+        return this;
+    }
+
+    public StateMachine<T> setTransition(List<T> fromStates, List<T> toStates, Condition condition, Event event) throws Exception {
+        if (fromStates == null || fromStates.size() == 0) {
+            throw new Exception("Parameter from can not be empty. ");
+        }
+        for (T state : fromStates) {
+            setTransition(state, toStates, condition, event);
+        }
+        return this;
     }
 
     public StateMachine<T> setTransition(T from, Transition transition) {
@@ -61,14 +87,14 @@ public class StateMachine<T> {
     }
 
     public class Transition {
-        private Transition(T to, Condition condition, Event event) {
+        public Transition(T to, Condition condition, Event event) {
             this.to = to;
             this.condition = condition;
             this.event = event;
         }
 
-        private T to;
-        private Condition condition;
-        private Event event;
+        private final T to;
+        private final Condition condition;
+        private final Event event;
     }
 }
