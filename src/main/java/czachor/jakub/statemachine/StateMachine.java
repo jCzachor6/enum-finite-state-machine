@@ -3,10 +3,9 @@ package czachor.jakub.statemachine;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class StateMachine<T> {
+public class StateMachine<T extends Enum<T>> {
     private T currentState;
     private final Map<T, List<Transition>> mappedTransitions;
-
 
     public StateMachine(T startingState) {
         this.mappedTransitions = new HashMap<>();
@@ -18,25 +17,20 @@ public class StateMachine<T> {
     }
 
     public StateMachine<T> setTransition(List<T> fromStates, T to, Condition condition, Event event) throws Exception {
-        if (fromStates == null || fromStates.size() == 0) {
-            throw new Exception("Parameter from can not be empty. ");
-        }
+        StatesValidator.validateStatesCollection("from", fromStates);
         fromStates.forEach(state -> setTransition(state, new Transition(to, condition, event)));
         return this;
     }
 
     public StateMachine<T> setTransition(T from, List<T> toStates, Condition condition, Event event) throws Exception {
-        if (toStates == null || toStates.size() == 0) {
-            throw new Exception("Parameter from can not be empty. ");
-        }
+        StatesValidator.validateStatesCollection("to", toStates);
         toStates.forEach(state -> setTransition(from, new Transition(state, condition, event)));
         return this;
     }
 
     public StateMachine<T> setTransition(List<T> fromStates, List<T> toStates, Condition condition, Event event) throws Exception {
-        if (fromStates == null || fromStates.size() == 0) {
-            throw new Exception("Parameter from can not be empty. ");
-        }
+        StatesValidator.validateStatesCollection("from", fromStates);
+        StatesValidator.validateStatesCollection("to", toStates);
         for (T state : fromStates) {
             setTransition(state, toStates, condition, event);
         }
@@ -57,7 +51,11 @@ public class StateMachine<T> {
     public List<T> availableTransitions() {
         List<Transition> savedForCurrentState = mappedTransitions.get(this.currentState);
         if (savedForCurrentState != null) {
-            return savedForCurrentState.stream().filter(t -> t.condition.condition()).map(t -> t.to).collect(Collectors.toList());
+            return savedForCurrentState
+                    .stream()
+                    .filter(t -> t.condition.condition())
+                    .map(t -> t.to)
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
