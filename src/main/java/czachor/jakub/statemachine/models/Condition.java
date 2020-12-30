@@ -1,4 +1,4 @@
-package czachor.jakub.statemachine;
+package czachor.jakub.statemachine.models;
 
 @FunctionalInterface
 public interface Condition {

@@ -6,7 +6,7 @@
 
     <groupId>com.github.jczachor6</groupId>
     <artifactId>enum-finite-state-machine</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 
     <name>Enum finite state machine</name>
     <url>https://github.com/jCzachor6/enum-finite-state-machine</url>

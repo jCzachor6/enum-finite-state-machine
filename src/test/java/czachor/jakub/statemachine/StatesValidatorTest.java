@@ -1,10 +1,10 @@
 package czachor.jakub.statemachine;
 
 import czachor.jakub.statemachine.examples.WaterTankStates;
+import czachor.jakub.statemachine.validator.StatesValidator;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

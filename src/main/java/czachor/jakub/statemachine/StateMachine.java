@@ -1,5 +1,10 @@
 package czachor.jakub.statemachine;
 
+import czachor.jakub.statemachine.models.Behaviour;
+import czachor.jakub.statemachine.models.Condition;
+import czachor.jakub.statemachine.models.Event;
+import czachor.jakub.statemachine.validator.StatesValidator;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,27 +17,27 @@ public class StateMachine<T extends Enum<T>> {
         this.currentState = startingState;
     }
 
-    public StateMachine<T> setTransition(T from, T to, Condition condition, Event event) {
-        return setTransition(from, new Transition(to, condition, event));
+    public StateMachine<T> setTransition(T from, T to, Event event) {
+        return setTransition(from, new Transition(to, event));
     }
 
-    public StateMachine<T> setTransition(List<T> fromStates, T to, Condition condition, Event event) throws Exception {
+    public StateMachine<T> setTransition(List<T> fromStates, T to, Event event) throws IllegalArgumentException {
         StatesValidator.validateStatesCollection("from", fromStates);
-        fromStates.forEach(state -> setTransition(state, new Transition(to, condition, event)));
+        fromStates.forEach(state -> setTransition(state, new Transition(to, event)));
         return this;
     }
 
-    public StateMachine<T> setTransition(T from, List<T> toStates, Condition condition, Event event) throws Exception {
+    public StateMachine<T> setTransition(T from, List<T> toStates, Event event) throws IllegalArgumentException {
         StatesValidator.validateStatesCollection("to", toStates);
-        toStates.forEach(state -> setTransition(from, new Transition(state, condition, event)));
+        toStates.forEach(state -> setTransition(from, new Transition(state, event)));
         return this;
     }
 
-    public StateMachine<T> setTransition(List<T> fromStates, List<T> toStates, Condition condition, Event event) throws Exception {
+    public StateMachine<T> setTransition(List<T> fromStates, List<T> toStates, Event event) throws IllegalArgumentException {
         StatesValidator.validateStatesCollection("from", fromStates);
         StatesValidator.validateStatesCollection("to", toStates);
         for (T state : fromStates) {
-            setTransition(state, toStates, condition, event);
+            setTransition(state, toStates, event);
         }
         return this;
     }
@@ -66,7 +71,7 @@ public class StateMachine<T extends Enum<T>> {
 
     public StateMachine<T> tick(T to) {
         if (mappedTransitions.containsKey(currentState)) {
-            mappedTransitions.get(currentState).stream().filter(t -> t.to.equals(to)).findFirst().ifPresent(t -> t.event.transition());
+            mappedTransitions.get(currentState).stream().filter(t -> t.to.equals(to)).findFirst().ifPresent(t -> t.behaviour.transition());
         }
         this.currentState = to;
         return this;
@@ -76,8 +81,8 @@ public class StateMachine<T extends Enum<T>> {
         return currentState;
     }
 
-    public Transition transition(T to, Condition condition, Event event) {
-        return new Transition(to, condition, event);
+    public Transition transition(T to, Event event) {
+        return new Transition(to, event);
     }
 
     public Optional<T> firstAvailableTransition() {
@@ -85,14 +90,14 @@ public class StateMachine<T extends Enum<T>> {
     }
 
     public class Transition {
-        public Transition(T to, Condition condition, Event event) {
+        public Transition(T to, Event event) {
             this.to = to;
-            this.condition = condition;
-            this.event = event;
+            this.condition = event.getCondition();
+            this.behaviour = event.getBehaviour();
         }
 
         private final T to;
         private final Condition condition;
-        private final Event event;
+        private final Behaviour behaviour;
     }
 }
